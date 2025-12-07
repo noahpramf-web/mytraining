@@ -3,9 +3,17 @@ import { WeeklyPlan, Exercise } from "../types";
 
 // Helper to safely get the AI client only when needed
 const getAiClient = () => {
+  // O index.tsx garante que VITE_API_KEY seja mapeado para process.env.API_KEY se disponível
   const apiKey = process.env.API_KEY;
+  
   if (!apiKey) {
-    throw new Error("A chave da API (API_KEY) não foi encontrada. Configure-a nas variáveis de ambiente do seu provedor de hospedagem (ex: Vercel).");
+    throw new Error(
+      "Chave de API não encontrada.\n\n" +
+      "No VERCEL, a variável de ambiente DEVE se chamar 'VITE_API_KEY' (com o prefixo VITE_) para que o navegador consiga acessá-la.\n\n" +
+      "1. Vá em Settings > Environment Variables.\n" +
+      "2. Adicione 'VITE_API_KEY' com sua chave.\n" +
+      "3. Faça um Redeploy."
+    );
   }
   return new GoogleGenAI({ apiKey });
 };
