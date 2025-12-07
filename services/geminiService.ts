@@ -5,7 +5,7 @@ import { WeeklyPlan, Exercise } from "../types";
 const getAiClient = () => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    throw new Error("API Key not found in environment variables. Please check your Vercel configuration.");
+    throw new Error("A chave da API (API_KEY) não foi encontrada. Configure-a nas variáveis de ambiente do seu provedor de hospedagem (ex: Vercel).");
   }
   return new GoogleGenAI({ apiKey });
 };
