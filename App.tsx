@@ -93,7 +93,7 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-6 text-center">
+      <div className="h-full bg-neutral-950 flex flex-col items-center justify-center p-6 text-center">
         <div className="relative">
             <div className="absolute inset-0 bg-red-600 blur-xl opacity-20 rounded-full"></div>
             <Loader2 size={48} className="text-red-600 animate-spin relative z-10" />
@@ -108,7 +108,7 @@ const App: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-6 text-center">
+      <div className="h-full bg-neutral-950 flex flex-col items-center justify-center p-6 text-center">
         <div className="bg-red-500/10 p-4 rounded-full mb-4">
             <Sparkles size={48} className="text-red-600" />
         </div>
@@ -125,12 +125,12 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col overflow-hidden relative selection:bg-red-600/30">
+    <div className="h-full bg-neutral-950 text-neutral-100 flex flex-col overflow-hidden relative selection:bg-red-600/30">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-red-900/10 to-transparent pointer-events-none" />
       
       {/* Top Bar */}
-      <header className="flex justify-between items-center p-6 z-10">
+      <header className="flex justify-between items-center p-6 z-10 flex-shrink-0">
         <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-lg shadow-red-900/40 border-2 border-red-500 tracking-tighter">
                 NP
@@ -147,18 +147,18 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content Area - Slide */}
-      <main className="flex-1 flex flex-col relative max-w-6xl mx-auto w-full px-4 md:px-8 pb-28">
+      <main className="flex-1 flex flex-col relative max-w-6xl mx-auto w-full px-4 md:px-8 pb-28 overflow-hidden">
         {plan && (
-          <div className="flex-1 relative">
+          <div className="flex-1 relative w-full h-full">
              {plan.days.map((day, index) => (
                <div 
                 key={index} 
-                className={`absolute inset-0 transition-all duration-500 ease-in-out transform ${
+                className={`absolute inset-0 transition-all duration-500 ease-in-out transform w-full h-full ${
                     index === currentIndex 
-                    ? 'opacity-100 translate-x-0' 
+                    ? 'opacity-100 translate-x-0 z-10' 
                     : index < currentIndex 
-                        ? 'opacity-0 -translate-x-10 pointer-events-none' 
-                        : 'opacity-0 translate-x-10 pointer-events-none'
+                        ? 'opacity-0 -translate-x-10 pointer-events-none z-0' 
+                        : 'opacity-0 translate-x-10 pointer-events-none z-0'
                 }`}
                >
                  <DaySlide 
@@ -175,7 +175,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 w-full bg-neutral-950/95 backdrop-blur-xl border-t-2 border-neutral-900 p-4 z-50">
+      <div className="fixed bottom-0 left-0 w-full bg-neutral-950/95 backdrop-blur-xl border-t-2 border-neutral-900 p-4 z-50 safe-area-bottom">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
             
             {/* Day Rectangles (Tabs) */}
