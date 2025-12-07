@@ -3,18 +3,33 @@ import { WeeklyPlan, Exercise } from "../types";
 
 // Helper to safely get the AI client only when needed
 const getAiClient = () => {
-  // O index.tsx garante que VITE_API_KEY seja mapeado para process.env.API_KEY se disponível
-  const apiKey = process.env.API_KEY;
+  let apiKey = "";
+
+  // 1. Tenta obter a chave do ambiente Vite (Padrão moderno)
+  try {
+    // @ts-ignore
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEY) {
+      // @ts-ignore
+      apiKey = import.meta.env.VITE_API_KEY;
+    }
+  } catch (e) {
+    console.warn("Erro ao tentar ler import.meta.env", e);
+  }
+
+  // 2. Fallback para process.env (caso o build faça replacement de variáveis)
+  if (!apiKey && typeof process !== 'undefined' && process.env) {
+    apiKey = process.env.VITE_API_KEY || process.env.API_KEY || "";
+  }
   
   if (!apiKey) {
     throw new Error(
       "Chave de API não encontrada.\n\n" +
-      "No VERCEL, a variável de ambiente DEVE se chamar 'VITE_API_KEY' (com o prefixo VITE_) para que o navegador consiga acessá-la.\n\n" +
-      "1. Vá em Settings > Environment Variables.\n" +
-      "2. Adicione 'VITE_API_KEY' com sua chave.\n" +
-      "3. Faça um Redeploy."
+      "Verificamos 'import.meta.env.VITE_API_KEY' e 'process.env.API_KEY', mas ambos estão vazios.\n\n" +
+      "1. Certifique-se de que a variável no Vercel se chama EXATAMENTE 'VITE_API_KEY'.\n" +
+      "2. Após adicionar a variável, você DEVE fazer um REDEPLOY (Vá em Deployments > Redeploy) para que a chave entre em vigor."
     );
   }
+
   return new GoogleGenAI({ apiKey });
 };
 
