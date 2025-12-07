@@ -1,13 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { WeeklyPlan, Exercise } from "../types";
 
-const apiKey = process.env.API_KEY;
-if (!apiKey) {
-  throw new Error("API Key not found in environment variables");
-}
-const ai = new GoogleGenAI({ apiKey });
+// Helper to safely get the AI client only when needed
+const getAiClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    throw new Error("API Key not found in environment variables. Please check your Vercel configuration.");
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
+  const ai = getAiClient();
+
   const prompt = `
     Crie um guia de treinamento físico semanal completo (Segunda a Sexta-feira) para um praticante nível INTERMEDIÁRIO com foco em HIPERTROFIA.
     
@@ -108,6 +113,8 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
 };
 
 export const getReplacementExercise = async (currentExerciseName: string, dayFocus: string): Promise<Exercise> => {
+  const ai = getAiClient();
+  
   const prompt = `
     O usuário quer substituir o exercício "${currentExerciseName}" de um treino com foco em "${dayFocus}".
     

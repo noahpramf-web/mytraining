@@ -26,8 +26,10 @@ const App: React.FC = () => {
       const data = await generateWorkoutPlan();
       setPlan(data);
       localStorage.setItem('workout_plan_intermediate_v4', JSON.stringify(data));
-    } catch (err) {
-      setError("Não foi possível gerar o treino. Verifique sua conexão ou tente novamente.");
+    } catch (err: any) {
+      console.error("Failed to fetch plan:", err);
+      // Show the actual error message if available (e.g. API key missing)
+      setError(err?.message || "Não foi possível gerar o treino. Verifique sua conexão ou tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -63,7 +65,7 @@ const App: React.FC = () => {
 
     } catch (err) {
         console.error("Failed to swap exercise", err);
-        alert("Não foi possível substituir o exercício no momento.");
+        alert("Não foi possível substituir o exercício. Verifique a chave da API ou conexão.");
     } finally {
         setSwappingState(prev => {
             const newState = { ...prev };
@@ -111,7 +113,7 @@ const App: React.FC = () => {
             <Sparkles size={48} className="text-red-600" />
         </div>
         <h2 className="text-3xl font-extrabold text-white mb-2 uppercase">Ops! Algo deu errado.</h2>
-        <p className="text-neutral-400 mb-6 text-lg">{error}</p>
+        <p className="text-neutral-400 mb-6 text-lg max-w-lg mx-auto break-words">{error}</p>
         <button 
           onClick={fetchPlan}
           className="px-8 py-4 bg-red-600 text-white font-extrabold rounded-lg hover:bg-red-700 transition-colors uppercase tracking-widest text-base border-2 border-red-500"
