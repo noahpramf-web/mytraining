@@ -82,7 +82,7 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
 
     Requisitos de Formatação:
     *   **IMPORTANTE - CAMPO 'focus':** Liste APENAS os músculos principais do dia em CAIXA ALTA separados por " • " (Exceto quarta-feira que deve ser "PERNAS" e sexta-feira que deve ser "SUPERIORES").
-    *   **TIKTOK (CRÍTICO):** Para o campo 'tiktokSearchTerm', gere um termo CURTO e TÉCNICO para busca, focado na execução. Exemplo: "Execução Supino Reto", "Técnica Agachamento Livre", "Execução Rosca Direta". NÃO use frases longas como "como fazer...".
+    *   **YOUTUBE (CRÍTICO):** Para o campo 'youtubeQuery', gere um termo de busca OTIMIZADO PARA O YOUTUBE. Deve ser algo como "Como fazer [Nome do Exercicio]" ou "Execução correta [Nome do Exercicio]".
     *   **DESCANSO:** Para cada exercício, inclua um 'restTime' sugerido (ex: "60s", "90s", "45s") baseando-se na intensidade do movimento.
     *   Mantenha a linguagem técnica em Português.
   `;
@@ -113,9 +113,9 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
                         sets: { type: Type.STRING },
                         reps: { type: Type.STRING },
                         restTime: { type: Type.STRING, description: "Tempo de descanso sugerido (ex: 60s)" },
-                        tiktokSearchTerm: { type: Type.STRING, description: "Termo de busca curto (ex: 'Execução Supino Reto')" }
+                        youtubeQuery: { type: Type.STRING, description: "Termo de busca Youtube (ex: 'Como fazer Supino Reto')" }
                       },
-                      required: ["name", "sets", "reps", "restTime", "tiktokSearchTerm"]
+                      required: ["name", "sets", "reps", "restTime", "youtubeQuery"]
                     }
                   }
                 },
@@ -148,7 +148,7 @@ export const getReplacementExercise = async (currentExerciseName: string, dayFoc
     Forneça UM (1) único exercício alternativo que:
     1. Trabalhe EXATAMENTE o mesmo grupo muscular principal e função biomecânica.
     2. Seja adequado para nível INTERMEDIÁRIO.
-    3. Inclua um 'tiktokSearchTerm' curto (ex: "Execução [Nome do Exercicio]").
+    3. Inclua um 'youtubeQuery' (ex: "Como fazer [Nome do Exercicio]").
     4. Inclua um 'restTime' sugerido.
     
     Retorne APENAS um objeto JSON.
@@ -167,9 +167,9 @@ export const getReplacementExercise = async (currentExerciseName: string, dayFoc
             sets: { type: Type.STRING },
             reps: { type: Type.STRING },
             restTime: { type: Type.STRING },
-            tiktokSearchTerm: { type: Type.STRING }
+            youtubeQuery: { type: Type.STRING }
           },
-          required: ["name", "sets", "reps", "restTime", "tiktokSearchTerm"]
+          required: ["name", "sets", "reps", "restTime", "youtubeQuery"]
         }
       }
     });

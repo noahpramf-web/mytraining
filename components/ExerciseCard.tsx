@@ -14,7 +14,6 @@ interface ExerciseCardProps {
 
 const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, isSwapping, onSwap, onToggle }) => {
   const [isCompleted, setIsCompleted] = useState(false);
-  const [platform, setPlatform] = useState<'android' | 'ios' | 'desktop'>('desktop');
   
   // Create a somewhat unique ID for local storage
   const storageId = `completed_${dayName.replace(/\s/g, '')}_${exercise.name.replace(/\s/g, '')}`;
@@ -27,21 +26,6 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
     } else {
         setIsCompleted(false);
     }
-
-    // Advanced platform detection
-    const checkPlatform = () => {
-        const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-        if (/android/i.test(userAgent)) {
-            return 'android';
-        }
-        // iOS detection from: http://stackoverflow.com/a/9039885/177710
-        if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-            return 'ios';
-        }
-        return 'desktop';
-    };
-    setPlatform(checkPlatform());
-
   }, [storageId, exercise.name]); // Re-check when exercise changes
 
   const toggleCompletion = () => {
@@ -59,51 +43,15 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
     }
   };
 
-  const handleVideoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-      // Logic specific for iOS to try and force the app open
-      if (platform === 'ios') {
-          e.preventDefault();
-          const term = encodeURIComponent(exercise.tiktokSearchTerm);
-          // TikTok Custom URL Scheme for Search
-          const appUrl = `tiktok://search?keyword=${term}`;
-          const webUrl = `https://www.tiktok.com/search?q=${term}`;
-          
-          // Timestamp to check if the browser was suspended (meaning app opened)
-          const start = Date.now();
-          const timeout = 500;
-
-          // Try to open the app
-          window.location.href = appUrl;
-
-          // Fallback logic: if the app opens, the browser code execution pauses.
-          // If it resumes quickly (or doesn't pause), it means the app didn't open.
-          setTimeout(() => {
-              const end = Date.now();
-              if (end - start < timeout + 100) {
-                  // App likely didn't open, redirect to web
-                  window.location.href = webUrl;
-              }
-          }, timeout);
-      }
-  };
-
-  const getTiktokUrl = () => {
-    const term = encodeURIComponent(exercise.tiktokSearchTerm);
-    const webUrl = `https://www.tiktok.com/search?q=${term}`;
-
-    if (platform === 'android') {
-        // Android Intent: Tries to open app, falls back to webUrl if not installed
-        return `intent://search?q=${term}#Intent;scheme=tiktok;package=com.zhiliaoapp.musically;S.browser_fallback_url=${webUrl};end`;
-    }
+  const getYoutubeUrl = () => {
+    // Falls back to name if query is missing (for legacy data compatibility)
+    // @ts-ignore - Handle legacy data that might still have tiktokSearchTerm
+    const queryTerm = exercise.youtubeQuery || exercise.tiktokSearchTerm || exercise.name;
+    const term = encodeURIComponent(queryTerm);
     
-    // For iOS, we handle the click manually to try deep link first, 
-    // but we put the webUrl in href as a backup or for 'Open in New Tab' context.
-    // For Desktop, just the web url.
-    return webUrl;
+    // Direct search link for YouTube
+    return `https://www.youtube.com/results?search_query=${term}`;
   };
-
-  const linkUrl = getTiktokUrl();
-  const linkTarget = platform === 'desktop' ? "_blank" : undefined;
 
   return (
     <>
@@ -185,12 +133,11 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
             </div>
           )}
           
-          {/* TikTok Direct Link Button */}
+          {/* YouTube Direct Link Button */}
           <a 
-            href={linkUrl}
-            onClick={handleVideoClick}
-            target={linkTarget}
-            rel={platform === 'desktop' ? "noopener noreferrer" : undefined}
+            href={getYoutubeUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className={`
               ml-auto flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold uppercase tracking-wider text-sm transition-colors group/vid
               ${isCompleted 
@@ -199,7 +146,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
               }
             `}
           >
-            <Play size={16} className="fill-current group-hover/vid:text-[#ff0050] transition-colors" />
+            <Play size={16} className="fill-current group-hover/vid:text-[#ff0000] transition-colors" />
             <span className="hidden sm:inline">Ver Vídeo</span>
           </a>
         </div>

@@ -3,7 +3,7 @@ export interface Exercise {
   sets: string;
   reps: string;
   restTime: string; // Suggested rest time, e.g., "60s", "90s"
-  tiktokSearchTerm: string; // Used for TikTok direct search link
+  youtubeQuery: string; // Updated: Search term optimized for YouTube
 }
 
 export interface DayPlan {
