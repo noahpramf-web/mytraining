@@ -28,7 +28,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
         setIsCompleted(false);
     }
 
-    // Advanced platform detection for deep linking
+    // Advanced platform detection
     const checkPlatform = () => {
         const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
         if (/android/i.test(userAgent)) {
@@ -59,23 +59,50 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
     }
   };
 
-  const getTiktokLink = () => {
+  const handleVideoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      // Logic specific for iOS to try and force the app open
+      if (platform === 'ios') {
+          e.preventDefault();
+          const term = encodeURIComponent(exercise.tiktokSearchTerm);
+          // TikTok Custom URL Scheme for Search
+          const appUrl = `tiktok://search?keyword=${term}`;
+          const webUrl = `https://www.tiktok.com/search?q=${term}`;
+          
+          // Timestamp to check if the browser was suspended (meaning app opened)
+          const start = Date.now();
+          const timeout = 500;
+
+          // Try to open the app
+          window.location.href = appUrl;
+
+          // Fallback logic: if the app opens, the browser code execution pauses.
+          // If it resumes quickly (or doesn't pause), it means the app didn't open.
+          setTimeout(() => {
+              const end = Date.now();
+              if (end - start < timeout + 100) {
+                  // App likely didn't open, redirect to web
+                  window.location.href = webUrl;
+              }
+          }, timeout);
+      }
+  };
+
+  const getTiktokUrl = () => {
     const term = encodeURIComponent(exercise.tiktokSearchTerm);
     const webUrl = `https://www.tiktok.com/search?q=${term}`;
 
     if (platform === 'android') {
         // Android Intent: Tries to open app, falls back to webUrl if not installed
-        // 'com.zhiliaoapp.musically' is the package name for TikTok
         return `intent://search?q=${term}#Intent;scheme=tiktok;package=com.zhiliaoapp.musically;S.browser_fallback_url=${webUrl};end`;
     }
     
-    // iOS and Desktop use the standard link. 
-    // iOS Universal Links mechanism handles the app opening if 'target' is not _blank.
+    // For iOS, we handle the click manually to try deep link first, 
+    // but we put the webUrl in href as a backup or for 'Open in New Tab' context.
+    // For Desktop, just the web url.
     return webUrl;
   };
 
-  const linkUrl = getTiktokLink();
-  // Only use _blank for desktop. Mobile must use _self (undefined) to trigger app switch.
+  const linkUrl = getTiktokUrl();
   const linkTarget = platform === 'desktop' ? "_blank" : undefined;
 
   return (
@@ -161,6 +188,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
           {/* TikTok Direct Link Button */}
           <a 
             href={linkUrl}
+            onClick={handleVideoClick}
             target={linkTarget}
             rel={platform === 'desktop' ? "noopener noreferrer" : undefined}
             className={`
