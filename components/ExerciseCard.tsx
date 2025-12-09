@@ -47,11 +47,10 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
 
   const encodedTerm = encodeURIComponent(exercise.tiktokSearchTerm);
   
-  // Logic: On mobile, use the App URI Scheme (tiktok://) to force the app to open.
-  // On desktop, use the standard HTTPS web link.
-  const tiktokUrl = isMobile 
-    ? `tiktok://search?keyword=${encodedTerm}` 
-    : `https://www.tiktok.com/search?q=${encodedTerm}`;
+  // Use standard HTTPS Universal Link. 
+  // On mobile with the app installed, this usually triggers the app directly to the search page.
+  // The custom scheme (tiktok://) is often unreliable and may just open the Home feed.
+  const tiktokUrl = `https://www.tiktok.com/search?q=${encodedTerm}`;
 
   return (
     <>
@@ -135,7 +134,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
           {/* TikTok Direct Link Button */}
           <a 
             href={tiktokUrl}
-            // On mobile, avoiding _blank helps trigger the app deep link more reliably on some OS versions.
+            // On mobile, use undefined target to let OS intercept the link (Deep Link) and open the App.
+            // On desktop, use _blank to open new tab.
             target={isMobile ? undefined : "_blank"}
             rel="noopener noreferrer"
             className={`
