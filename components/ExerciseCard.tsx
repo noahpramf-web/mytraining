@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Play, Check, Loader2, RefreshCw, Clock } from 'lucide-react';
 import { Exercise } from '../types';
+import { playSuccessSound, playSwapSound } from '../utils/sounds';
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -46,6 +47,12 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
   const toggleCompletion = () => {
     const newState = !isCompleted;
     setIsCompleted(newState);
+    
+    // Play sound if marking as done
+    if (newState) {
+        playSuccessSound();
+    }
+
     localStorage.setItem(storageId, String(newState));
     if (onToggle) {
         onToggle();
@@ -89,6 +96,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
             <button 
               onClick={(e) => {
                   e.stopPropagation();
+                  playSwapSound();
                   onSwap();
               }}
               disabled={isSwapping}

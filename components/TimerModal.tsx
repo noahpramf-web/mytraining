@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Play, Pause, RotateCcw, Timer } from 'lucide-react';
+import { playClickSound } from '../utils/sounds';
 
 interface TimerModalProps {
   seconds: number;
@@ -56,7 +57,10 @@ const TimerModal: React.FC<TimerModalProps> = ({ seconds, isRunning, onToggle, o
         {/* Controls */}
         <div className="flex items-center gap-6 w-full justify-center">
             <button 
-                onClick={onReset}
+                onClick={() => {
+                    playClickSound();
+                    onReset();
+                }}
                 className="w-16 h-16 flex items-center justify-center rounded-full bg-neutral-800 text-neutral-400 border-2 border-transparent hover:border-neutral-600 transition-all active:scale-95"
                 title="Reiniciar Treino"
             >
@@ -64,7 +68,10 @@ const TimerModal: React.FC<TimerModalProps> = ({ seconds, isRunning, onToggle, o
             </button>
 
             <button 
-                onClick={onToggle}
+                onClick={() => {
+                    playClickSound();
+                    onToggle();
+                }}
                 className={`
                     w-24 h-24 flex items-center justify-center rounded-full border-4 transition-all active:scale-95 shadow-xl
                     ${isRunning 

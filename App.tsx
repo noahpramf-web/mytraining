@@ -4,6 +4,7 @@ import { generateWorkoutPlan, getReplacementExercise } from './services/geminiSe
 import DaySlide from './components/DaySlide';
 import TimerModal from './components/TimerModal';
 import { ChevronLeft, ChevronRight, Loader2, Sparkles, RefreshCw, Timer } from 'lucide-react';
+import { playClickSound } from './utils/sounds';
 
 const App: React.FC = () => {
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
@@ -237,7 +238,10 @@ const App: React.FC = () => {
             </button>
             
             <button 
-                onClick={() => setShowTimer(true)}
+                onClick={() => {
+                  playClickSound();
+                  setShowTimer(true);
+                }}
                 className={`
                     flex items-center gap-2 text-xs font-bold uppercase tracking-wider transition-all bg-transparent px-4 py-2 rounded-lg border-2 w-full justify-center
                     ${isTimerRunning 
