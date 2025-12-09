@@ -56,7 +56,8 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
         *   (+ 1 Panturrilha obrigatória).
         *   (+ 1 Abdômen obrigatório).
     
-    4.  **Quarta-feira (Pernas Completo - Volume Aumentado e Completo):**
+    4.  **Quarta-feira (PERNAS):**
+        *   **IMPORTANTE:** Defina o campo 'focus' deste dia exatamente como "PERNAS".
         *   2 exercícios focados em Quadríceps.
         *   2 exercícios focados em Posterior de Coxa.
         *   2 exercícios focados em Glúteos.
@@ -71,7 +72,8 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
         *   (+ 1 Panturrilha obrigatória).
         *   (+ 1 Abdômen obrigatório).
     
-    6.  **Sexta-feira (Full Body Superior - Sem Perna):**
+    6.  **Sexta-feira (SUPERIORES):**
+        *   **IMPORTANTE:** Defina o campo 'focus' deste dia exatamente como "SUPERIORES".
         *   Treino de corpo inteiro, MAS EXCLUINDO as pernas (exceto a panturrilha).
         *   Pelo menos 1 exercício para cada: Peito, Costas, Ombro, Bíceps, Tríceps.
         *   **1 exercício de Trapézio** (Obrigatório).
@@ -79,8 +81,9 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
         *   (+ 1 Abdômen obrigatório).
 
     Requisitos de Formatação:
-    *   **IMPORTANTE - CAMPO 'focus':** Liste APENAS os músculos principais do dia em CAIXA ALTA separados por " • ". **NÃO** inclua "Panturrilha" ou "Abdômen" neste título, pois eles já estão implícitos todos os dias. Exemplo: "PEITO • TRÍCEPS".
-    *   Para cada exercício, forneça: Nome Técnico, Séries (ex: "3-4 séries"), Repetições (ex: "8-12 reps" ou "Falha") e Termo de busca YouTube.
+    *   **IMPORTANTE - CAMPO 'focus':** Liste APENAS os músculos principais do dia em CAIXA ALTA separados por " • " (Exceto quarta-feira que deve ser "PERNAS" e sexta-feira que deve ser "SUPERIORES").
+    *   **TIKTOK (CRÍTICO):** Para cada exercício, gere um 'tiktokSearchTerm' otimizado para encontrar tutoriais curtos de execução em Português no TikTok (ex: "execução supino reto", "como fazer agachamento").
+    *   **DESCANSO:** Para cada exercício, inclua um 'restTime' sugerido (ex: "60s", "90s", "45s") baseando-se na intensidade do movimento.
     *   Mantenha a linguagem técnica em Português.
   `;
 
@@ -99,7 +102,7 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
                 type: Type.OBJECT,
                 properties: {
                   dayName: { type: Type.STRING, description: "Dia da semana (ex: Segunda-feira)" },
-                  focus: { type: Type.STRING, description: "LISTA APENAS DOS MÚSCULOS PRINCIPAIS (Sem Panturrilha/Abdômen)" },
+                  focus: { type: Type.STRING, description: "Título do foco do dia (ex: Costas • Bíceps, ou PERNAS)" },
                   description: { type: Type.STRING, description: "Breve frase de efeito (opcional)" },
                   exercises: {
                     type: Type.ARRAY,
@@ -109,9 +112,10 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
                         name: { type: Type.STRING },
                         sets: { type: Type.STRING },
                         reps: { type: Type.STRING },
-                        videoSearchTerm: { type: Type.STRING, description: "Termo para busca no YouTube" }
+                        restTime: { type: Type.STRING, description: "Tempo de descanso sugerido (ex: 60s)" },
+                        tiktokSearchTerm: { type: Type.STRING, description: "Termo de busca otimizado para TikTok (ex: 'execução supino reto')" }
                       },
-                      required: ["name", "sets", "reps", "videoSearchTerm"]
+                      required: ["name", "sets", "reps", "restTime", "tiktokSearchTerm"]
                     }
                   }
                 },
@@ -142,9 +146,10 @@ export const getReplacementExercise = async (currentExerciseName: string, dayFoc
     O usuário quer substituir o exercício "${currentExerciseName}" de um treino com foco em "${dayFocus}".
     
     Forneça UM (1) único exercício alternativo que:
-    1. Trabalhe EXATAMENTE o mesmo grupo muscular principal e função biomecânica do exercício original.
-    2. Seja adequado para nível INTERMEDIÁRIO (Hipertrofia).
-    3. Seja DIFERENTE do exercício original ("${currentExerciseName}").
+    1. Trabalhe EXATAMENTE o mesmo grupo muscular principal e função biomecânica.
+    2. Seja adequado para nível INTERMEDIÁRIO.
+    3. Inclua um 'tiktokSearchTerm' para encontrar o vídeo no TikTok.
+    4. Inclua um 'restTime' sugerido.
     
     Retorne APENAS um objeto JSON.
   `;
@@ -161,9 +166,10 @@ export const getReplacementExercise = async (currentExerciseName: string, dayFoc
             name: { type: Type.STRING },
             sets: { type: Type.STRING },
             reps: { type: Type.STRING },
-            videoSearchTerm: { type: Type.STRING, description: "Termo para busca no YouTube" }
+            restTime: { type: Type.STRING },
+            tiktokSearchTerm: { type: Type.STRING }
           },
-          required: ["name", "sets", "reps", "videoSearchTerm"]
+          required: ["name", "sets", "reps", "restTime", "tiktokSearchTerm"]
         }
       }
     });
