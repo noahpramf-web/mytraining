@@ -13,17 +13,27 @@ interface ExerciseCardProps {
 
 const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, isSwapping, onSwap, onToggle }) => {
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   // Create a somewhat unique ID for local storage
   const storageId = `completed_${dayName.replace(/\s/g, '')}_${exercise.name.replace(/\s/g, '')}`;
 
   useEffect(() => {
+    // Check completion status
     const saved = localStorage.getItem(storageId);
     if (saved === 'true') {
       setIsCompleted(true);
     } else {
         setIsCompleted(false);
     }
+
+    // Check if device is mobile to optimize TikTok linking
+    const checkMobile = () => {
+        const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent;
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    };
+    setIsMobile(checkMobile());
+
   }, [storageId, exercise.name]); // Re-check when exercise changes
 
   const toggleCompletion = () => {
@@ -35,7 +45,13 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
     }
   };
 
-  const tiktokUrl = `https://www.tiktok.com/search?q=${encodeURIComponent(exercise.tiktokSearchTerm)}`;
+  const encodedTerm = encodeURIComponent(exercise.tiktokSearchTerm);
+  
+  // Logic: On mobile, use the App URI Scheme (tiktok://) to force the app to open.
+  // On desktop, use the standard HTTPS web link.
+  const tiktokUrl = isMobile 
+    ? `tiktok://search?keyword=${encodedTerm}` 
+    : `https://www.tiktok.com/search?q=${encodedTerm}`;
 
   return (
     <>
@@ -119,7 +135,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
           {/* TikTok Direct Link Button */}
           <a 
             href={tiktokUrl}
-            target="_blank"
+            // On mobile, avoiding _blank helps trigger the app deep link more reliably on some OS versions.
+            target={isMobile ? undefined : "_blank"}
             rel="noopener noreferrer"
             className={`
               ml-auto flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold uppercase tracking-wider text-sm transition-colors group/vid

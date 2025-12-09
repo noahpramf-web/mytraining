@@ -58,16 +58,41 @@ const App: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
+      let data: WeeklyPlan | null = null;
       const cached = localStorage.getItem(CACHE_KEY);
+      
       if (cached) {
-          setPlan(JSON.parse(cached));
-          setLoading(false);
-          return;
+          data = JSON.parse(cached);
+      } else {
+          data = await generateWorkoutPlan();
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
       }
 
-      const data = await generateWorkoutPlan();
-      setPlan(data);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      if (data) {
+        // LÓGICA DE LIMPEZA DIÁRIA:
+        // Verifica o dia atual e limpa os checkboxes de todos os OUTROS dias.
+        // Isso garante que os dias anteriores sejam resetados (unmarked) quando o dia muda,
+        // mas mantém o progresso do dia atual se o usuário fechar e abrir o app.
+        const today = new Date().getDay(); // 0=Dom, 1=Seg, ... 6=Sab
+
+        data.days.forEach((day, index) => {
+            // O índice do plano 0 é Segunda (1), índice 1 é Terça (2), etc.
+            const planDayOfWeek = index + 1;
+
+            // Se o dia do plano NÃO é hoje, limpamos seu histórico.
+            // Ex: Se hoje é Terça (2), limpamos Segunda (1), Quarta (3), etc.
+            // Nos finais de semana (0 ou 6), tudo é limpo, preparando para a Segunda.
+            if (today !== planDayOfWeek) {
+                day.exercises.forEach(ex => {
+                    const storageId = `completed_${day.dayName.replace(/\s/g, '')}_${ex.name.replace(/\s/g, '')}`;
+                    localStorage.removeItem(storageId);
+                });
+            }
+        });
+
+        setPlan(data);
+      }
+
     } catch (err: any) {
       console.error("Failed to fetch plan:", err);
       // Show the actual error message if available (e.g. API key missing)
