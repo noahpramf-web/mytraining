@@ -193,7 +193,7 @@ const App: React.FC = () => {
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-red-900/10 to-transparent pointer-events-none" />
       
       {/* Top Bar */}
-      <header className="flex justify-between items-start p-6 z-10 flex-shrink-0">
+      <header className="flex justify-between items-start px-6 pb-6 pt-14 md:p-6 z-10 flex-shrink-0">
         <div className="flex items-center gap-2 mt-2">
             <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-lg shadow-red-900/40 border-2 border-red-500 tracking-tighter">
                 NP
