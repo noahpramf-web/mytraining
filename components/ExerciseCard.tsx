@@ -13,7 +13,7 @@ interface ExerciseCardProps {
 
 const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, isSwapping, onSwap, onToggle }) => {
   const [isCompleted, setIsCompleted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [platform, setPlatform] = useState<'android' | 'ios' | 'desktop'>('desktop');
   
   // Create a somewhat unique ID for local storage
   const storageId = `completed_${dayName.replace(/\s/g, '')}_${exercise.name.replace(/\s/g, '')}`;
@@ -27,12 +27,19 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
         setIsCompleted(false);
     }
 
-    // Check if device is mobile to optimize TikTok linking
-    const checkMobile = () => {
-        const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent;
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    // Advanced platform detection for deep linking
+    const checkPlatform = () => {
+        const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+        if (/android/i.test(userAgent)) {
+            return 'android';
+        }
+        // iOS detection from: http://stackoverflow.com/a/9039885/177710
+        if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+            return 'ios';
+        }
+        return 'desktop';
     };
-    setIsMobile(checkMobile());
+    setPlatform(checkPlatform());
 
   }, [storageId, exercise.name]); // Re-check when exercise changes
 
@@ -45,14 +52,24 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
     }
   };
 
-  const encodedTerm = encodeURIComponent(exercise.tiktokSearchTerm);
-  
-  // Logic: 
-  // Mobile: Use 'tiktok://search?keyword=...' to FORCE the app to open.
-  // Desktop: Use 'https://www.tiktok.com/search?q=...' for the web browser.
-  const tiktokUrl = isMobile 
-    ? `tiktok://search?keyword=${encodedTerm}` 
-    : `https://www.tiktok.com/search?q=${encodedTerm}`;
+  const getTiktokLink = () => {
+    const term = encodeURIComponent(exercise.tiktokSearchTerm);
+    const webUrl = `https://www.tiktok.com/search?q=${term}`;
+
+    if (platform === 'android') {
+        // Android Intent: Tries to open app, falls back to webUrl if not installed
+        // 'com.zhiliaoapp.musically' is the package name for TikTok
+        return `intent://search?q=${term}#Intent;scheme=tiktok;package=com.zhiliaoapp.musically;S.browser_fallback_url=${webUrl};end`;
+    }
+    
+    // iOS and Desktop use the standard link. 
+    // iOS Universal Links mechanism handles the app opening if 'target' is not _blank.
+    return webUrl;
+  };
+
+  const linkUrl = getTiktokLink();
+  // Only use _blank for desktop. Mobile must use _self (undefined) to trigger app switch.
+  const linkTarget = platform === 'desktop' ? "_blank" : undefined;
 
   return (
     <>
@@ -135,11 +152,9 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
           
           {/* TikTok Direct Link Button */}
           <a 
-            href={tiktokUrl}
-            // On mobile, keep target undefined to allow the OS to intercept the Custom URL Scheme (tiktok://).
-            // On desktop, open in a new tab.
-            target={isMobile ? undefined : "_blank"}
-            rel="noopener noreferrer"
+            href={linkUrl}
+            target={linkTarget}
+            rel={platform === 'desktop' ? "noopener noreferrer" : undefined}
             className={`
               ml-auto flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold uppercase tracking-wider text-sm transition-colors group/vid
               ${isCompleted 
@@ -149,7 +164,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, index, dayName, i
             `}
           >
             <Play size={16} className="fill-current group-hover/vid:text-[#ff0050] transition-colors" />
-            <span className="hidden sm:inline">TikTok</span>
+            <span className="hidden sm:inline">Ver Vídeo</span>
           </a>
         </div>
       </div>

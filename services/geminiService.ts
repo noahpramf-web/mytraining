@@ -82,7 +82,7 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
 
     Requisitos de Formatação:
     *   **IMPORTANTE - CAMPO 'focus':** Liste APENAS os músculos principais do dia em CAIXA ALTA separados por " • " (Exceto quarta-feira que deve ser "PERNAS" e sexta-feira que deve ser "SUPERIORES").
-    *   **TIKTOK (CRÍTICO):** Para cada exercício, gere um 'tiktokSearchTerm' otimizado para encontrar TUTORIAL de execução em Português (ex: "como fazer supino reto", "execução correta agachamento"). O objetivo é que o usuário aprenda a fazer.
+    *   **TIKTOK (CRÍTICO):** Para o campo 'tiktokSearchTerm', gere um termo CURTO e TÉCNICO para busca, focado na execução. Exemplo: "Execução Supino Reto", "Técnica Agachamento Livre", "Execução Rosca Direta". NÃO use frases longas como "como fazer...".
     *   **DESCANSO:** Para cada exercício, inclua um 'restTime' sugerido (ex: "60s", "90s", "45s") baseando-se na intensidade do movimento.
     *   Mantenha a linguagem técnica em Português.
   `;
@@ -113,7 +113,7 @@ export const generateWorkoutPlan = async (): Promise<WeeklyPlan> => {
                         sets: { type: Type.STRING },
                         reps: { type: Type.STRING },
                         restTime: { type: Type.STRING, description: "Tempo de descanso sugerido (ex: 60s)" },
-                        tiktokSearchTerm: { type: Type.STRING, description: "Termo de busca para tutorial (ex: 'como fazer supino reto')" }
+                        tiktokSearchTerm: { type: Type.STRING, description: "Termo de busca curto (ex: 'Execução Supino Reto')" }
                       },
                       required: ["name", "sets", "reps", "restTime", "tiktokSearchTerm"]
                     }
@@ -148,7 +148,7 @@ export const getReplacementExercise = async (currentExerciseName: string, dayFoc
     Forneça UM (1) único exercício alternativo que:
     1. Trabalhe EXATAMENTE o mesmo grupo muscular principal e função biomecânica.
     2. Seja adequado para nível INTERMEDIÁRIO.
-    3. Inclua um 'tiktokSearchTerm' focado em TUTORIAL/COMO FAZER.
+    3. Inclua um 'tiktokSearchTerm' curto (ex: "Execução [Nome do Exercicio]").
     4. Inclua um 'restTime' sugerido.
     
     Retorne APENAS um objeto JSON.
